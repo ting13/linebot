@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Chose Stock</title>
+    <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
+    <script src="static/jquery-3.3.1.min.js"></script>
+    <script src="static/jquery-form.js"></script>
+    <script src="static/jquery.autocomplete.js"></script>
+    <script src="static/jquery-ui.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Noto Sans CJK TC, PingFang TC, MicrosoftJhengHei;
+            font-size: 16px;
+        }
+
+        .stock-block {
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .inputCmp,
+        .input-search input {
+            width: 180px;
+            height: 42px;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .inputCmp {
+            margin: 15px;
+            font-size: 0;
+            box-shadow: 0 2px 4px 0 rgba(40, 62, 86, .3);
+        }
+
+        .input-search,
+        .input-icon {
+            display: inline-block;
+        }
+
+        .stock-title {
+            margin: 15px 0 0;
+            font-size: 26px;
+            letter-spacing: 2px;
+            line-height: 42px;
+            font-weight: 400;
+            color: #1989ac;
+            text-align: center;
+        }
+
+        .input-search input {
+            padding: 10px;
+            box-shadow: unset;
+            z-index: 2;
+            border: none;
+        }
+
+        .input-icon img {
+            left: -30px;
+            height: 20px;
+            width: 20px;
+            position: relative;
+            vertical-align: middle;
+            z-index: 5;
+            background-image: url("https://linebot.prj.tw/static/img/search.png") no-repeat;
+            cursor: pointer;
+        }
+
+
+
+        .menu-btn button {
+            padding: 10px 0;
+            margin-left: 10px;
+            width: 86px;
+            border: none;
+            box-shadow: 0 2px 4px 0 rgba(40, 62, 86, .2);
+            background-image: linear-gradient(90deg, #1989ac, #19ac8d);
+            color: #fff;
+            letter-spacing: 1.2px;
+            line-height: 24px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+
+        }
+
+        .ui-autocomplete li {
+            width: 180px;
+            z-index: 1;
+            padding: 2px;
+            background-color: #fff;
+            position: relative;
+            left: -40px;
+            border-bottom: 1px solid rgba(40, 62, 86, .2);
+            box-shadow: 1px 1px 3px -1px #4a4a4a;
+
+        }
+
+        .ui-autocomplete li:hover {
+            background: #f3f9fb;
+        }
+
+    </style>
+    <script>
+
+        //init LIFF
+        function initializeApp() {
+            // //取得QueryString
+            // let urlParams = new URLSearchParams(window.location.search);
+
+            liff.getProfile().then(
+                profile => {
+                    $("#userName").append(profile.displayName);
+                    $("#userId").val(profile.userId);
+                }
+            );
+        }
+
+
+        //ready
+        $(function () {
+            //init LIFF
+            liff.init(function (data) {
+                initializeApp();
+            });
+
+            $("#symbol").autocomplete({
+                source: function (request, response) {
+                    console.log(request.term);
+                    $.ajax({
+                        url: "https://mac.above.tw/q?type=tw&cat=tseotc&word=" + request.term,
+                        dataType: "json",
+                        type: "GET",
+                        data: {
+                            featureClass: "P",
+                            style: "full",
+                            maxRows: 12,
+                            // name_startsWith: request.term
+                        },
+                        success: function (data) {
+                            // console.log(data);
+                            response(data);
+                        }
+                    });
+
+                },
+                autoFocus: true,
+                minLength: 0,
+                focus: function (event, ui) {
+                    $(".ui-helper-hidden-accessible").hide();
+                    event.preventDefault();
+                },
+                select: function (event, ui) {
+                    log(ui.item.label);
+                    return false;
+                },
+
+            });
+
+            $("#symbol").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    if ($("#symbol").val().length == 0) {
+                        event.preventDefault();
+                        return false;
+                    }
+                }
+            });
+
+            $('#searchStock').click(function () {
+                liff.sendMessages([
+                    {
+                        type: 'text',
+                        text: $('#symbol').val()
+                    }
+                ])
+                    .then(() => {
+                        alert('done');
+                    })
+            });
+
+            $('#trtButton').click(function () {
+                liff.sendMessages([
+                    {
+                        type: 'text',
+                        text: '即時策略'
+                    }
+                ])
+                    .then(() => {
+                        alert('done');
+                    })
+            });
+
+            $('#robotButton').click(function () {
+
+                liff.openWindow({
+                    url: 'https://linebot.prj.tw/module1?sym='+$('#symbol').val(),
+                    external: false
+                });
+            });
+
+            $(document).click(function () {
+                $( "#symbol" ).autocomplete( "close" );
+
+            });
+
+        });
+
+        function clearInput() {
+            $("input[id='symbol']").val("").focus();
+
+        }
+
+        function log(message) {
+
+            var name_sym = message.match(/(.*)#(.*)\(TW\)/);
+            var name = name_sym[1];
+            var sym = name_sym[2];
+            message = sym;
+
+            $('#symbol').val("");
+            $('#symbol').val(message);
+            $('#name').val(name);
+            $('#title').html(name + sym);
+
+        }
+
+    </script>
+</head>
+
+<body>
+    <div class="row">
+        <div class="col-md-6">
+
+            <div class="stock-block">
+                <div id="userName">User name: </div>
+                <div id="userId" hidden></div>
+                <div id="name" hidden></div>
+                <div class="stock-title" id="title"></div>
+                <div class="inputCmp">
+                    <div class="input-search">
+                        <input id="symbol" onclick="clearInput()" placeholder="台積電">
+                    </div>
+                    <div class="input-icon">
+                        <img id="searchStock" onclick="liff.closeWindow()" src="https://linebot.prj.tw/static/img/search.png" alt="search">
+                    </div>
+                </div>
+                <div class="menu-btn">
+                    <button id="trtButton">即時選股</button>
+                    <button id="robotButton">羅豹特</button>
+                    <button id="newsButton" onclick="console.log($('#name').val()); window.open('https://news.above.tw/all-news?k='+$('#name').val(), '');">新聞</button>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</body>
+
+</html>

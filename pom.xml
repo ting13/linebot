@@ -1,0 +1,215 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>app-bot</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>app-bot</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+    
+	    <dependency>
+	        <groupId>org.telegram</groupId>
+	        <artifactId>telegrambots</artifactId>
+	        <version>4.1</version>
+		</dependency>
+    	
+    
+        <!-- begin clod -->
+		
+<!--         <dependency>
+			<groupId>clod</groupId>
+			<artifactId>trick-twbase</artifactId>
+			<version>${trick-twbase.version}</version>
+		</dependency> -->
+       	
+       	<dependency>
+    		<groupId>mysql</groupId>
+    		<artifactId>mysql-connector-java</artifactId>
+    		<version>8.0.12</version>
+		</dependency>
+        
+        <dependency>
+    		<groupId>com.linecorp.bot</groupId>
+    		<artifactId>line-bot-api-client</artifactId>
+    		<version>2.3.0</version>
+		</dependency>
+		
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>${slf4j-nop.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>common-db</artifactId>
+            <version>${common-db.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>clod-webapp</artifactId>
+            <version>${clod-webapp.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>common-data</artifactId>
+            <version>${common-data.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>cube-webserver</artifactId>
+            <version>${cube-webserver.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>app-0server</artifactId>
+            <version>${app-0server.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>app-ring-server</artifactId>
+            <version>${app-ring-server.version}</version>
+
+            <exclusions><!-- 恐怖的slf4j binding，這裏移除掉因為 dust 而來的 logback -->
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+
+        </dependency>
+
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>common-html</artifactId>
+            <version>${common-html.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>clod-dc</artifactId>
+            <version>${clod-dc.version}</version>
+        </dependency>
+
+<!--         <dependency>
+            <groupId>clod</groupId>
+            <artifactId>app-trick</artifactId>
+            <version>${app-trick.version}</version>
+        </dependency> -->
+
+        <dependency>
+            <groupId>clod</groupId>
+            <artifactId>apps-twquotecore</artifactId>
+            <version>${apps-twquotecore.version}</version>
+        </dependency>
+        
+<!--         <dependency>
+            <groupId>clod</groupId>
+            <artifactId>app-monitor</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency> -->
+
+
+        <!-- end clod -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
+        </dependency>
+        
+        <dependency>
+   			<groupId>com.fasterxml.jackson.core</groupId>
+   			<artifactId>jackson-core</artifactId>
+    		<version>2.9.7</version>
+		</dependency>
+		
+		<!-- telegramBot需要 -->
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-annotations</artifactId>
+		    <version>2.9.8</version>
+		</dependency>
+
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <fork>true</fork>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>app.bot.BotApp</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <!-- Additional configuration. -->
+
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <parent>
+        <groupId>clod</groupId>
+        <artifactId>root</artifactId>
+        <version>0.2-SNAPSHOT</version>
+        <relativePath>../../root/root</relativePath>
+    </parent>
+
+</project>

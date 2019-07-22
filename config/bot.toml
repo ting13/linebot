@@ -1,0 +1,15 @@
+
+twdb = ["maria://clodread:readonly@pzx.prj.tw:3308/twdb"]
+appdb = ["maria://appread:readonly@pknuc.prj.tw:29556/honset"]
+db_connections = 5
+
+# Web 介面 Service 的 Port
+webport = 9018
+
+# 標示是否要 Run Backend 起來
+backend = 0
+
+################################################################################
+# 底下是 smartagent 自己會用到的 Config
+
+
